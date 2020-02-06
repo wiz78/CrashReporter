@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<package>
+	<metadata>
+		<id>info.tellini.CrashReporter</id>
+		<version>$version$</version>
+		<title>$title$</title>
+		<authors>Simone Tellini</authors>
+		<owners>Simone Tellini</owners>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<license type="expression">Apache-2.0</license>
+		<projectUrl>https://github.com/wiz78/CrashReporter</projectUrl>
+		<description>Intercepts and report crashes in Windows.Forms apps to your favorite bug-tracker (which currently means Mantis BT).</description>
+		<releaseNotes>First nuget release</releaseNotes>
+		<copyright>Copyright ©2020 by Simone Tellini</copyright>
+		<tags>mantis crash reporting Forms</tags>
+		<repository type="git" url="https://github.com/wiz78/CrashReporter.git" branch="master" />
+	</metadata>
+</package>

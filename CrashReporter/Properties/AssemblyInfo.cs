@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // set di attributi. Per modificare le informazioni associate a un assembly
 // occorre quindi modificare i valori di questi attributi.
 [assembly: AssemblyTitle( "CrashReporter" )]
-[assembly: AssemblyDescription( "" )]
+[assembly: AssemblyDescription( "Intercepts and report crashes to your bug-tracker" )]
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "https://tellini.info/" )]
 [assembly: AssemblyProduct( "CrashReporter" )]
-[assembly: AssemblyCopyright( "Copyright © 2010-2019 by Simone Tellini" )]
+[assembly: AssemblyCopyright( "Copyright © 2010-2020 by Simone Tellini" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 
