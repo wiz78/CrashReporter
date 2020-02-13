@@ -10,7 +10,9 @@
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<license type="expression">Apache-2.0</license>
 		<projectUrl>https://github.com/wiz78/CrashReporter</projectUrl>
-		<description>Intercepts and report crashes in Windows.Forms apps to your favorite bug-tracker (which currently means Mantis BT).</description>
+		<description>Intercepts and report crashes in Windows.Forms apps to your favorite bug-tracker (which currently means Mantis BT).
+		
+Server-side support is required (check the project on github) to actually insert data in your tracker.</description>
 		<releaseNotes>First nuget release</releaseNotes>
 		<copyright>Copyright ©2020 by Simone Tellini</copyright>
 		<tags>mantis crash reporting Forms</tags>
