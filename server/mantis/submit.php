@@ -66,7 +66,7 @@
 	if( empty( $issue->description ))
 		$issue->description = 'Crashed.';
 
-	$attachments = array( 'eventlog', 'preferences', 'exception', 'shell', 'system' );
+	$attachments = array( 'console', 'eventlog', 'preferences', 'exception', 'shell', 'system' );
 
 	try {
 		$mantis = new Mantis();
@@ -75,6 +75,20 @@
 	
 		if( !$mantis->hasVersion( $issue->project->id, $issue->version ))
 			$mantis->addVersion( $issue->project->id, $issue->version );
+		
+		$customFields = $mantis->getRequiredCustomFields( $issue->project->id );
+		
+		foreach( $customFields as $field ) {
+			
+			$name = $field->field->name;
+			
+			if( isset( BUG_CUSTOM_FIELDS[ $name ] ))
+				$field->value = BUG_CUSTOM_FIELDS[ $name ];
+			else
+				$field->value = 'N/A';
+		}
+		
+		$issue->custom_fields = $customFields;
 				
 		$id = $mantis->addIssue( $issue );
 
@@ -89,4 +103,3 @@
 	catch( Exception $e ) {
 		print( 'ERR An error occurred while storing the report' );
 	}
-?>

@@ -76,6 +76,15 @@ class Mantis
 											   ));			
 	}
 	
+	public function getRequiredCustomFields( $projID )
+	{
+		$fields = $this->client->mc_project_get_custom_fields( MANTIS_USER, MANTIS_PWD, $projID );
+	
+		$fields = array_filter( $fields, function( $i ) { return $i->require_report; } );
+		
+		return $fields;
+	}
+	
 	public function addIssue( $issue )
 	{
 		return( $this->client->mc_issue_add( MANTIS_USER, MANTIS_PWD, $issue ));
@@ -87,4 +96,3 @@ class Mantis
 									  			$name, 'text/plain', $str ); 
 	}
 }
-?>
