@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Diagnostics;
@@ -6,6 +7,7 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Win32;
@@ -46,10 +48,18 @@ namespace info.tellini.CrashReporter
 		{
 			if( !string.IsNullOrWhiteSpace( ServerURL ))
 				try {
-					ReportForm	form = new ReportForm();
-					string		stackTrace = GetStackTrace( ex );
+					ReportForm		form = new ReportForm();
+					List<string>	additionalInfo = new List<string>();
 
-					Trace.WriteLine( stackTrace );
+					if( UseShortVersion )
+						additionalInfo.Add( "Full version: " + GetAppVersion( false ));
+
+					additionalInfo.Add( GetOpenForms() );
+					additionalInfo.Add( GetStackTrace( ex ));
+
+					additionalInfo.RemoveAll( string.IsNullOrWhiteSpace );
+
+					Trace.WriteLine( string.Join( "\n\n", additionalInfo ));
 
 					if( form.ShowDialog() == DialogResult.OK ) {
 						WebClient			webClient = new WebClient();
@@ -59,7 +69,7 @@ namespace info.tellini.CrashReporter
 														 { "comment", form.Comments },
 														 { "version", GetAppVersion( UseShortVersion ) },
 														 { "summary", ex.ToString() },
-														 { "crashes", stackTrace },
+														 { "crashes", string.Join( "\n\n---\n\n", additionalInfo ) },
 														 { "system", GetSystemData() },
 														 { "shell", GetShellData( ex ) },
 														 { "preferences", GetAppConfig() },
@@ -80,12 +90,33 @@ namespace info.tellini.CrashReporter
 				}
 		}
 
+		private static string GetOpenForms()
+		{
+			string ret = "";
+
+			try {
+				if( Application.OpenForms.Count > 0 ) {
+
+					ret = "Open forms:";
+
+					foreach( Form form in Application.OpenForms ) {
+						
+						ret += $"\n - {form.GetType().FullName}";
+
+						if( form == Form.ActiveForm )
+							ret += " (**active**)";
+					}
+				}
+			}
+			catch {
+			}
+
+			return ret;
+		}
+
 		private static string GetEventLog()
 		{
 			StringBuilder	ret = new StringBuilder();
-
-			if( UseShortVersion )
-				ret.Append( "Full version: " ).AppendLine( GetAppVersion( false )).AppendLine();
 
 			try {
 				Assembly	asm = Assembly.GetEntryAssembly();
@@ -171,8 +202,19 @@ namespace info.tellini.CrashReporter
 		{
 			OperatingSystem	os = Environment.OSVersion;
 			string			ret = "OS_VERSION = " + os.VersionString;
+			string			osName = null, osEdition = null, displayVersion = null;
 
-			ret += $"\nOS_NAME = {OSInfo.Name} ({OSInfo.Edition})";
+			using( RegistryKey regKey = Registry.LocalMachine.OpenSubKey( "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion" )) 
+				if( regKey != null ) {
+					osName         = (string)regKey.GetValue( "ProductName" );
+					osEdition      = (string)regKey.GetValue( "EditionID" );
+					displayVersion = (string)regKey.GetValue( "DisplayVersion" );
+				}
+
+			if( !string.IsNullOrWhiteSpace( displayVersion ))
+				ret += $" ({displayVersion})";
+
+			ret += $"\nOS_NAME = {osName ?? OSInfo.Name} ({osEdition ?? OSInfo.Edition})";
 
 			using( RegistryKey regKey = Registry.LocalMachine.OpenSubKey( "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0" ))
 				if( regKey != null )
@@ -188,8 +230,11 @@ namespace info.tellini.CrashReporter
 			string ret = string.Empty;
 			
 			do {
+				string stackTrace = Regex.Replace( exception.StackTrace, @"^\s+", 
+												   m => new string( '\u00a0', m.Groups[0].Length ),
+												   RegexOptions.Multiline );
 
-				ret += exception.Message + "\n" + exception.StackTrace + "\n\n";
+				ret += $"**{exception.Message}**\n{stackTrace}\n\n";
 
 				exception = exception.InnerException;
 
