@@ -14,7 +14,7 @@
 		
 Server-side support is required (check the project on github) to actually insert data in your tracker.</description>
 		<releaseNotes>First nuget release</releaseNotes>
-		<copyright>Copyright ©2020-2021 by Simone Tellini</copyright>
+		<copyright>Copyright ©2020-2022 by Simone Tellini</copyright>
 		<tags>mantis crash reporting Forms</tags>
 		<repository type="git" url="https://github.com/wiz78/CrashReporter.git" branch="master" />
 	</metadata>

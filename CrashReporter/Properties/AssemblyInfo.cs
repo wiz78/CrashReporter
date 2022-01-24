@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "https://tellini.info/" )]
 [assembly: AssemblyProduct( "CrashReporter" )]
-[assembly: AssemblyCopyright( "Copyright © 2010-2021 by Simone Tellini" )]
+[assembly: AssemblyCopyright( "Copyright © 2010-2022 by Simone Tellini" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 
@@ -31,5 +31,5 @@ using System.Runtime.InteropServices;
 // È possibile specificare tutti i valori oppure impostare valori predefiniti per i numeri relativi alla revisione e alla build 
 // utilizzando l'asterisco (*) come descritto di seguito:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion( "1.5.0.0" )]
-[assembly: AssemblyFileVersion( "1.5.0.0" )]
+[assembly: AssemblyVersion( "1.6.0.0" )]
+[assembly: AssemblyFileVersion( "1.6.0.0" )]
