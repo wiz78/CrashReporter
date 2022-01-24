@@ -25,41 +25,56 @@ namespace info.tellini.CrashReporter
 		/// </summary>
 		/// <param name="ex">exception</param>
 		/// <returns>extra information to add to shell.txt</returns>
-		public delegate	string					CustomDataHandler( Exception ex );
+		public delegate	string						CustomDataHandler( Exception ex );
 		/// <summary>
 		/// Delegate signature for ExceptionFilter
 		/// </summary>
 		/// <param name="ex">exception</param>
 		/// <returns>true if the exception should be reported, false if it's already been handled</returns>
-		public delegate	bool					ExceptionFilterHandler( Exception ex );
+		public delegate	bool						ExceptionFilterHandler( Exception ex );
+		/// <summary>
+		/// Delegate signature for GetDefaultReportInformation
+		/// </summary>
+		/// <returns>info to initialize the crash report dialog</returns>
+		public delegate	ReportInformation			GetReportInformationHandler();
+		/// <summary>
+		/// Delegate signature for SaveDefaultReportInformation
+		/// </summary>
+		public delegate	void						SaveReportInformationHandler( ReportInformation reportInformation );
 
 		/// <summary>
 		/// The URL where data will be posted to
 		/// </summary>
-		public static string					ServerURL { get; set; }
+		public static string						ServerURL { get; set; }
 		/// <summary>
 		/// Set to true to truncate the reported version to the first two parts (major.minor)
 		/// </summary>
-		public static bool						UseShortVersion { get; set; }
+		public static bool							UseShortVersion { get; set; }
 		/// <summary>
 		/// Set to true if it should try to collect recent events with source == the assembly name from the Application log
 		/// </summary>
-		public static bool						CollectEventLog { get; set; }
+		public static bool							CollectEventLog { get; set; }
 		/// <summary>
 		/// Proxy to use to report the data to the server, if needed
 		/// </summary>
-		public static IWebProxy					Proxy { get; set; }
-
+		public static IWebProxy						Proxy { get; set; }
 		/// <summary>
 		/// May return extra information to include in the report
 		/// </summary>
-		public static CustomDataHandler			CustomDataDelegate { get; set; }
-
+		public static CustomDataHandler				CustomDataDelegate { get; set; }
 		/// <summary>
 		/// If set, allows to filter exceptions that should be reported.
 		/// </summary>
 		/// <returns>true if the exception should be reported, false if it's been handled</returns>
-		public static ExceptionFilterHandler	ExceptionFilter { get; set; }
+		public static ExceptionFilterHandler		ExceptionFilter { get; set; }
+		/// <summary>
+		/// If set, it allows to provide default value to initialize the crash report dialog
+		/// </summary>
+		public static GetReportInformationHandler	GetReportInformation { get; set; }
+		/// <summary>
+		/// If set, it allows to remember the last used username/email/comments, if it makes sense
+		/// </summary>
+		public static SaveReportInformationHandler	SaveReportInformation { get; set; }
 
 		static CrashReporter()
 		{
@@ -92,7 +107,7 @@ namespace info.tellini.CrashReporter
 		{
 			if( !string.IsNullOrWhiteSpace( ServerURL ) && (( ExceptionFilter == null ) || ExceptionFilter( ex )))
 				try {
-					ReportForm		form = new ReportForm();
+					ReportForm		form = new ReportForm( GetReportInformation?.Invoke() );
 					List<string>	additionalInfo = new List<string>();
 
 					if( UseShortVersion )
@@ -106,11 +121,12 @@ namespace info.tellini.CrashReporter
 					Trace.WriteLine( string.Join( "\n\n", additionalInfo ));
 
 					if( form.ShowDialog() == DialogResult.OK ) {
+						ReportInformation	info = form.Info;
 						WebClient			webClient = new WebClient();
                         NameValueCollection	values = new NameValueCollection 
 													 {
-														 { "email", "\"" + form.UserName + "\" <" + form.EMail + ">" },
-														 { "comment", form.Comments },
+														 { "email", "\"" + info.UserName + "\" <" + info.EMail + ">" },
+														 { "comment", info.Comments },
 														 { "version", GetAppVersion( UseShortVersion ) },
 														 { "summary", ex.ToString() },
 														 { "crashes", string.Join( "\n\n---\n\n", additionalInfo ) },
@@ -118,6 +134,8 @@ namespace info.tellini.CrashReporter
 														 { "shell", GetShellData( ex ) },
 														 { "preferences", GetAppConfig() },
 													 };
+
+						SaveReportInformation?.Invoke( info );
 
 						if( CollectEventLog )
 							values[ "eventlog" ] = GetEventLog();

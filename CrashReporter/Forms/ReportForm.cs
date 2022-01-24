@@ -4,13 +4,23 @@ namespace info.tellini.CrashReporter.Forms
 {
 	internal partial class ReportForm : Form
 	{
-		public string UserName => tbName.Text;
-		public string EMail => tbEMail.Text;
-		public string Comments => tbComments.Text;
+		public ReportInformation	Info => new ReportInformation
+											{
+												UserName = tbName.Text,
+												EMail = tbEMail.Text,
+												Comments = tbComments.Text,
+											};
 
-		public ReportForm()
+		public ReportForm( ReportInformation reportInformation )
 		{
 			InitializeComponent();
+
+			if( reportInformation != null ) {
+
+				tbName.Text = reportInformation.UserName;
+				tbEMail.Text = reportInformation.EMail;
+				tbComments.Text = reportInformation.Comments;
+			}
 		}
 	}
 }

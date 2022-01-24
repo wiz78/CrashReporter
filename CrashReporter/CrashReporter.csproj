@@ -49,6 +49,7 @@
     </Compile>
     <Compile Include="OSInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReportInformation.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Forms\ReportForm.it.resx">

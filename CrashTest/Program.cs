@@ -12,6 +12,12 @@ namespace CrashTest
 		[STAThread]
 		static void Main()
 		{
+			CrashReporter.GetReportInformation = () => new ReportInformation
+													   {
+														   UserName = "Test user",
+														   EMail = "test@example.org",
+													   };
+			
 			CrashReporter.Install();
 
 			Application.SetHighDpiMode( HighDpiMode.SystemAware );
