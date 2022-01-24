@@ -15,15 +15,51 @@ using info.tellini.CrashReporter.Forms;
 
 namespace info.tellini.CrashReporter
 {
+	/// <summary>
+	/// Intercepts unhandled exceptions and reports them to your bugtracker
+	/// </summary>
 	public static class CrashReporter
 	{
-		public delegate	string			CustomDataHandler( Exception ex );
+		/// <summary>
+		/// Delegate signature for CustomDataDelegate
+		/// </summary>
+		/// <param name="ex">exception</param>
+		/// <returns>extra information to add to shell.txt</returns>
+		public delegate	string					CustomDataHandler( Exception ex );
+		/// <summary>
+		/// Delegate signature for ExceptionFilter
+		/// </summary>
+		/// <param name="ex">exception</param>
+		/// <returns>true if the exception should be reported, false if it's already been handled</returns>
+		public delegate	bool					ExceptionFilterHandler( Exception ex );
 
-		public static string			ServerURL { get; set; }
-		public static bool				UseShortVersion { get; set; }
-		public static bool				CollectEventLog { get; set; }
-		public static IWebProxy			Proxy { get; set; }
-		public static CustomDataHandler	CustomDataDelegate { get; set; }
+		/// <summary>
+		/// The URL where data will be posted to
+		/// </summary>
+		public static string					ServerURL { get; set; }
+		/// <summary>
+		/// Set to true to truncate the reported version to the first two parts (major.minor)
+		/// </summary>
+		public static bool						UseShortVersion { get; set; }
+		/// <summary>
+		/// Set to true if it should try to collect recent events with source == the assembly name from the Application log
+		/// </summary>
+		public static bool						CollectEventLog { get; set; }
+		/// <summary>
+		/// Proxy to use to report the data to the server, if needed
+		/// </summary>
+		public static IWebProxy					Proxy { get; set; }
+
+		/// <summary>
+		/// May return extra information to include in the report
+		/// </summary>
+		public static CustomDataHandler			CustomDataDelegate { get; set; }
+
+		/// <summary>
+		/// If set, allows to filter exceptions that should be reported.
+		/// </summary>
+		/// <returns>true if the exception should be reported, false if it's been handled</returns>
+		public static ExceptionFilterHandler	ExceptionFilter { get; set; }
 
 		static CrashReporter()
 		{
@@ -32,6 +68,9 @@ namespace info.tellini.CrashReporter
 			CollectEventLog = Convert.ToBoolean( ConfigurationManager.AppSettings[ "CrashReporterCollectEventLog" ] );
 		}
 
+		/// <summary>
+		/// Installs the handlers required to intercept unhandled exceptions.
+		/// </summary>
 		public static void Install()
 		{
 			Application.ThreadException += ExceptionHandler;
@@ -44,9 +83,14 @@ namespace info.tellini.CrashReporter
 			ReportException( e.Exception );
 		}
 
+		/// <summary>
+		/// Asks the user if the exception should be reported. If so, collects some data and send it to the server.
+		/// </summary>
+		/// <remarks>It does nothing at all if ServerURL is empty or ExceptionFilter( ex ) returns false</remarks>
+		/// <param name="ex">exception to report</param>
 		public static void ReportException( Exception ex )
 		{
-			if( !string.IsNullOrWhiteSpace( ServerURL ))
+			if( !string.IsNullOrWhiteSpace( ServerURL ) && (( ExceptionFilter == null ) || ExceptionFilter( ex )))
 				try {
 					ReportForm		form = new ReportForm();
 					List<string>	additionalInfo = new List<string>();

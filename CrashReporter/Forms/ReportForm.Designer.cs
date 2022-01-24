@@ -1,6 +1,6 @@
 ﻿namespace info.tellini.CrashReporter.Forms
 {
-	partial class ReportForm
+	internal partial class ReportForm
 	{
 		/// <summary>
 		/// Required designer variable.

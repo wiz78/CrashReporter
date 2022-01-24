@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace info.tellini.CrashReporter
 {
-    public static class OSInfo
+    internal static class OSInfo
     {
 		/// <summary>
         /// Determines if the current application is 32 or 64-bit.
