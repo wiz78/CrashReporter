@@ -164,18 +164,21 @@ namespace info.tellini.CrashReporter
 
 			try {
 				Assembly	asm = Assembly.GetEntryAssembly();
-				string		source = asm.GetName( false ).Name;
-				EventLog[]	events = EventLog.GetEventLogs();
-				DateTime	start = DateTime.Now.AddMinutes( -30 );
 
-				foreach( EventLog log in events )
-					foreach( EventLogEntry entry in log.Entries )
-						if(( entry.Source == source ) && ( entry.TimeGenerated >= start )) {
-							
-							ret.Append( "[" ).Append( entry.TimeGenerated.ToString( "o" )).Append( "] " );
-							ret.Append( entry.EntryType ).Append( " - " );
-							ret.Append( entry.Message );
-						}
+				if( asm != null ) {
+					string		source = asm.GetName( false ).Name;
+					EventLog[]	events = EventLog.GetEventLogs();
+					DateTime	start = DateTime.Now.AddMinutes( -30 );
+
+					foreach( EventLog log in events )
+						foreach( EventLogEntry entry in log.Entries )
+							if(( entry.Source == source ) && ( entry.TimeGenerated >= start )) {
+								
+								ret.Append( "[" ).Append( entry.TimeGenerated.ToString( "o" )).Append( "] " );
+								ret.Append( entry.EntryType ).Append( " - " );
+								ret.Append( entry.Message );
+							}
+				}
 			}
 			catch {
 			}
@@ -230,11 +233,13 @@ namespace info.tellini.CrashReporter
 			try {
 				Assembly	asm = Assembly.GetEntryAssembly();
 
-				ret.AppendLine( "Referenced assemblies:" );
+				if( asm != null ) {
 
-				foreach( AssemblyName an in asm.GetReferencedAssemblies() )
-					ret.AppendFormat( "   Name={0}, Version={1}, Culture={2}, PublicKey token={3}", 
-									  an.Name, an.Version, an.CultureInfo.Name, BitConverter.ToString( an.GetPublicKeyToken() )).AppendLine();
+					ret.AppendLine( "Referenced assemblies:" );
+
+					foreach( AssemblyName an in asm.GetReferencedAssemblies() )
+						ret.AppendLine( $"   Name={an.Name}, Version={an.Version}, Culture={an.CultureInfo.Name}, PublicKey token={BitConverter.ToString( an.GetPublicKeyToken() )}" );
+				}
 			}
 			catch {
 			}
@@ -289,14 +294,17 @@ namespace info.tellini.CrashReporter
 
 		private static string GetAppVersion( bool shortVersion )
 		{
+			string		ret = string.Empty;
 			Assembly	ass = Assembly.GetEntryAssembly();
-			Version		vers = ass.GetName().Version;
-			string		ret;
 
-			if( shortVersion )
-				ret = vers.Major + "." + vers.Minor;
-			else
-				ret = vers.ToString();
+			if( ass != null ) {
+				Version	vers = ass.GetName().Version;
+
+				if( shortVersion )
+					ret = vers.Major + "." + vers.Minor;
+				else
+					ret = vers.ToString();
+			}
 				
 			return ret;
 		}
